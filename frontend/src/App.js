@@ -1,22 +1,76 @@
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import axios from 'axios';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Home from './pages/Home';
+import Navbar from './components/Navbar';
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// Crea un componente Home básico (o impórtalo si lo tienes en otro archivo)
-function Home() {
-  return (
-    <div className="App">
-      <h1>Lorcana Web App</h1>
-      {/* Contenido inicial aquí */}
-    </div>
-  );
-}
+// Configura Axios globalmente
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://tu-backend-en-render.onrender.com';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // Verificar autenticación al cargar
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+
+    if (token && username) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setIsAuthenticated(true);
+      setUser({ username });
+    }
+  }, []);
+
+  // Función para manejar logout
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    delete axios.defaults.headers.common['Authorization'];
+    setIsAuthenticated(false);
+    setUser(null);
+  };
+
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-      </Routes>
+      <div className="App">
+        <Navbar 
+          isAuthenticated={isAuthenticated} 
+          user={user} 
+          onLogout={handleLogout} 
+        />
+        
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              isAuthenticated ? 
+                <Home user={user} /> : 
+                <Navigate to="/login" />
+            } 
+          />
+          <Route 
+            path="/login" 
+            element={
+              !isAuthenticated ? 
+                <Login setIsAuthenticated={setIsAuthenticated} setUser={setUser} /> : 
+                <Navigate to="/" />
+            } 
+          />
+          <Route 
+            path="/register" 
+            element={
+              !isAuthenticated ? 
+                <Register setIsAuthenticated={setIsAuthenticated} setUser={setUser} /> : 
+                <Navigate to="/" />
+            } 
+          />
+        </Routes>
+      </div>
     </Router>
   );
 }
