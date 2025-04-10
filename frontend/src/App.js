@@ -1,16 +1,24 @@
-import logo from './logo.svg';
 import './App.css';
-import { useEffect } from 'react';
-import io from 'socket.io-client';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// Crea un componente Home básico (o impórtalo si lo tienes en otro archivo)
+function Home() {
+  return (
+    <div className="App">
+      <h1>Lorcana Web App</h1>
+      {/* Contenido inicial aquí */}
+    </div>
+  );
+}
 
 function App() {
-  useEffect(() => {
-    const socket = io('https://tu-backend-en-render.onrender.com');
-    socket.on('connect', () => {
-      console.log('Conectado al servidor WebSocket');
-    });
-  }, []);
-
-  return <h1>Lorcana Web App</h1>;
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </Router>
+  );
 }
+
 export default App;
