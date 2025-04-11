@@ -43,14 +43,24 @@ const io = socketio(server, {
   }
 });
 
-// Conexión a MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ Conectado a MongoDB Atlas'))
-  .catch(err => {
-    console.error('❌ Error de MongoDB:', err);
-    process.exit(1);
-  });
+// Conexión a MongoDB con manejo mejorado
+mongoose.set('strictQuery', false); // Para eliminar el warning de deprecación
 
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000, // Timeout después de 5 segundos
+      socketTimeoutMS: 45000 // Cierra sockets después de 45s de inactividad
+    });
+    console.log('✅ MongoDB conectado exitosamente');
+  } catch (err) {
+    console.error('❌ Error de conexión a MongoDB:', err.message);
+    process.exit(1); // Termina la aplicación con error
+  }
+};
+
+// Llama a la función de conexión
+connectDB();
 // Rutas
 app.use('/api/auth', authRoutes);
 
