@@ -34,6 +34,7 @@ function App() {
     setIsAuthenticated(false);
     setUser(null);
   };
+  console.log('API URL:', process.env.REACT_APP_API_URL);
 
   return (
     <Router>
