@@ -11,9 +11,15 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://tu-backend-en-render.onrender.com/api/auth/login', {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/auth/register`, {
         email,
         password
+      }, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
       
       localStorage.setItem('token', response.data.token);
