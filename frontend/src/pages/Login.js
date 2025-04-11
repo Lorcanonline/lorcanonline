@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [user, setUsername] = useState('');
+  // const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const Login = () => {
     try {
       const response = await axios.post(
         `/api/auth/login`, {
-        email,
+        user,
         password
       }, {
         withCredentials: true,
@@ -39,11 +40,11 @@ const Login = () => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Email:</label>
+          <label>usuario:</label>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="user"
+            value={user}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>

@@ -57,15 +57,15 @@ router.post('/register', async (req, res) => {
 // Login de usuario
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
     // Validación
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email y contraseña requeridos' });
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Usuario y contraseña requeridos' });
     }
 
     // Buscar usuario
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(400).json({ message: 'Credenciales inválidas' });
     }
@@ -83,11 +83,18 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
-    }).json({ userId: user._id, username: user.username });
+// En ambas rutas (login y register), cambia la respuesta:
+res
+  .cookie('token', token, { 
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict'
+  })
+  .json({ 
+    userId: user._id, 
+    username: user.username,
+    // token
+  });
 
   } catch (error) {
     console.error(error);
