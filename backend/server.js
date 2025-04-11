@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const http = require('http');
 const socketio = require('socket.io');
 const authRoutes = require('./routes/auth');
@@ -9,51 +8,50 @@ const authRoutes = require('./routes/auth');
 const app = express();
 const server = http.createServer(app);
 
-// Configuración mejorada de CORS
-const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      'https://lorcanonline.vercel.app',
-      'http://localhost:3000',
-      process.env.FRONTEND_URL
-    ];
-    
-    // Permitir solicitudes sin origen (como mobile apps o curl)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Origen no permitido por CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-};
+// Configuración de CORS manual - Solución definitiva
+const allowedOrigins = [
+  'https://lorcanonline.vercel.app',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL
+].filter(Boolean);
 
-// Middlewares (actualizados)
-app.use(cors(corsOptions));  // Usa la configuración personalizada
-app.options('*', cors(corsOptions));    // Manejo explícito de preflight requests
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  
+  // Manejo preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
+// Middlewares esenciales
 app.use(express.json());
 
-// Configuración de WebSocket (actualizada)
+// Configuración de WebSocket
 const io = socketio(server, {
   cors: {
-    origin: corsOptions.origin,  // Usa las mismas opciones de CORS
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true
   }
 });
 
-// Conexión a MongoDB (sin cambios)
+// Conexión a MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ Conectado a MongoDB Atlas'))
-  .catch(err => console.error('❌ Error de MongoDB:', err));
+  .catch(err => {
+    console.error('❌ Error de MongoDB:', err);
+    process.exit(1);
+  });
 
-// Rutas (sin cambios)
+// Rutas
 app.use('/api/auth', authRoutes);
 
 // Middleware para log de headers (solo desarrollo)
@@ -64,7 +62,7 @@ if (process.env.NODE_ENV === 'development') {
   });
 }
 
-// WebSocket (sin cambios)
+// WebSocket Connection
 io.on('connection', (socket) => {
   console.log(`⚡ Nuevo cliente conectado: ${socket.id}`);
 
@@ -73,14 +71,26 @@ io.on('connection', (socket) => {
   });
 });
 
-// Manejo de errores global (sin cambios)
+// Manejo de errores global
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Algo salió mal en el servidor' });
+  res.status(500).json({ 
+    message: 'Algo salió mal en el servidor',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+// Ruta de prueba
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK',
+    message: 'API funcionando correctamente',
+    timestamp: new Date().toISOString()
+  });
 });
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en puerto ${PORT}`);
-  console.log(`🔵 CORS configurado para: ${corsOptions.origin.join(', ')}`);
+  console.log('🔵 Orígenes permitidos:', allowedOrigins);
 });
