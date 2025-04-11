@@ -6,11 +6,9 @@ const router = express.Router();
 
 // Registro de usuario
 router.post('/register', async (req, res) => {
-  console.log('Datos recibidos:', req.body); // ← Añade esto
   try {
     const { username, password, avatar } = req.body;
     const email = req.body.email || null;
-    console.log('Datos procesados:', { username, password, email, avatar }); // ← Y esto
 
     // Validación básica
     if (!username || !password) {
