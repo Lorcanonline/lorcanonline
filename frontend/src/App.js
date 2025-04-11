@@ -9,6 +9,7 @@ import './App.css';
 
 // Configura Axios globalmente
 axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://lorcanonline.onrender.com';
+axios.defaults.withCredentials = true;
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

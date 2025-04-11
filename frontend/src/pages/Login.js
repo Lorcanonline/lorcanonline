@@ -12,7 +12,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/auth/login`, {
+        `/api/auth/login`, {
         email,
         password
       }, {
@@ -23,8 +23,8 @@ const Login = () => {
         }
       });
       
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('username', response.data.username);
+      // localStorage.setItem('token', response.data.token);
+      // localStorage.setItem('username', response.data.username);
       navigate('/'); // Redirige al home después de login
       
     } catch (err) {

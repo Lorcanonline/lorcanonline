@@ -46,6 +46,7 @@ const connectDB = async () => {
     console.log('✅ MongoDB conectado exitosamente');
   } catch (err) {
     console.error('❌ Error de conexión a MongoDB:', err.message);
+    console.error('URI usada:', process.env.MONGODB_URI?.replace(/\/\/[^@]+@/, '//***:***@'));
     process.exit(1);
   }
 };
@@ -77,6 +78,13 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log(`🔌 Cliente desconectado: ${socket.id}`);
+  });
+});
+
+io.on('connection', (socket) => {
+  socket.on('join_game', (gameId) => {
+    socket.join(gameId);
+    io.to(gameId).emit('player_joined', socket.id);
   });
 });
 

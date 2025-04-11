@@ -40,8 +40,14 @@ router.post('/register', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.status(201).json({ token, userId: newUser._id, username: newUser.username });
-
+    res.status(201)
+      .cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      })
+      .json({ userId: newUser._id, username: newUser.username });
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error en el servidor' });
@@ -77,8 +83,12 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.json({ token, userId: user._id, username: user.username });
-
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    }).json({ userId: user._id, username: user.username });
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error en el servidor' });

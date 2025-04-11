@@ -13,7 +13,7 @@ const Register = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/auth/register`,
+        `/api/auth/register`,
         {
           username,
           email,
@@ -28,8 +28,8 @@ const Register = () => {
         }
       );
       
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('username', response.data.username);
+      // localStorage.setItem('token', response.data.token);
+      // localStorage.setItem('username', response.data.username);
       navigate('/'); // Redirige al home después de registro
       
     } catch (err) {
