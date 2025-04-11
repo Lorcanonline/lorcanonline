@@ -12,13 +12,14 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/auth/register`, {
+        `${process.env.REACT_APP_API_URL}/api/auth/login`, {
         email,
         password
       }, {
         withCredentials: true,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
       });
       

@@ -13,11 +13,20 @@ const Register = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/auth/register`, {
-        username,
-        email,
-        password
-      });
+        `${process.env.REACT_APP_API_URL}/api/auth/register`,
+        {
+          username,
+          email,
+          password
+        },
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      );
       
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('username', response.data.username);
