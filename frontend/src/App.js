@@ -23,7 +23,10 @@ function App() {
     if (token && username) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setIsAuthenticated(true);
-      setUser({ username });
+      setUser({ 
+        username,
+        id: localStorage.getItem('userId')
+      });
     }
   }, []);
 

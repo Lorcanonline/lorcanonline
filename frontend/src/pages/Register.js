@@ -28,8 +28,8 @@ const Register = () => {
         }
       );
       
-      // localStorage.setItem('token', response.data.token);
-      // localStorage.setItem('username', response.data.username);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('username', response.data.username);
       navigate('/'); // Redirige al home después de registro
       
     } catch (err) {

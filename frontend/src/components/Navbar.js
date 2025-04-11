@@ -11,7 +11,7 @@ const Navbar = ({ isAuthenticated, user, onLogout }) => {
         
         {isAuthenticated ? (
           <div>
-            <span style={{ marginRight: '1rem' }}>Hola, {user.username}</span>
+            <span style={{ marginRight: '1rem' }}>Hola, {user?.username || 'Invitado'}</span>
             <button onClick={onLogout}>Cerrar sesión</button>
           </div>
         ) : (
