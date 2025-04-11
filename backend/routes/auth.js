@@ -6,19 +6,30 @@ const router = express.Router();
 
 // Registro de usuario
 router.post('/register', async (req, res) => {
+  console.log('Datos recibidos:', req.body); // ← Añade esto
   try {
-    const { username, email, password } = req.body;
+    const { username, password, avatar } = req.body;
+    const email = req.body.email || null;
+    console.log('Datos procesados:', { username, password, email, avatar }); // ← Y esto
 
     // Validación básica
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: 'Todos los campos son requeridos' });
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Necesitas por lo menos usuario y contraseña!' });
     }
 
-    // Verificar si el usuario ya existe
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email o usuario ya registrado' });
-    }
+  // Verificar si el usuario ya existe (solo por username)
+  const existingUser = await User.findOne({ username });
+  if (existingUser) {
+    return res.status(400).json({ message: 'Nombre de usuario ya registrado' });
+  }
+
+  // Si se proporcionó email, verificar que no exista
+  if (email) {
+    const emailUser = await User.findOne({ email });
+    if (emailUser) {
+      return res.status(400).json({ message: 'Email ya registrado' });
+   }
+ }
 
     // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,7 +39,8 @@ router.post('/register', async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      decks: []
+      decks: [],
+      avatar: avatar || `pfp${Math.floor(Math.random() * 12) + 1}`
     });
 
     await newUser.save();
@@ -40,24 +52,11 @@ router.post('/register', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-//     res.status(201)
-//       .cookie('token', token, {
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === 'production',
-//         sameSite: 'strict'
-//       })
-//       .json({ userId: newUser._id, username: newUser.username });
-    
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Error en el servidor' });
-//   }
-// });
-
 res.status(201).json({
-  userId: newUser.userId,
+  userId: newUser._id,
   username: newUser.username,
   email: newUser.email,
+  avatar: newUser.avatar,
   token: token
 });
   } catch (error) {
@@ -103,8 +102,9 @@ res
   //   sameSite: 'strict'
   // })
   .json({ 
-    userId: user.userId, 
+    userId: user._id, 
     username: user.username,
+    avatar: user.avatar,
     token // Para desarrollo
   });
 

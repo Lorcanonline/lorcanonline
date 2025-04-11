@@ -5,6 +5,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import Navbar from './components/Navbar';
+import ProfilePage from './pages/ProfilePage';
+
 import './App.css';
 
 // Configura Axios globalmente
@@ -74,6 +76,13 @@ function App() {
                 <Navigate to="/" />
             } 
           />
+          <Route 
+          path="/profile/:username"
+          element={
+          <ProfilePage />
+          } />
+
+
         </Routes>
       </div>
     </Router>

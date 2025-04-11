@@ -28,7 +28,21 @@ const Navbar = ({ isAuthenticated, user, onLogout }) => {
         {isAuthenticated ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <span style={{ marginRight: '1rem' }}>
-              Hola, <strong>{user?.username}</strong>
+
+              <Link to={`/profile/${user.username}`} style={{ display: 'flex', alignItems: 'center' }}>
+                <img 
+                  src={`/avatars/${user.avatar}.jpg`} 
+                  alt="Avatar"
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    marginLeft: '10px',
+                    objectFit: 'cover'
+                  }}
+                />
+              </Link>
+
             </span>
             <button 
               onClick={onLogout}

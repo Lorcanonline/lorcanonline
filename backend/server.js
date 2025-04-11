@@ -111,3 +111,8 @@ server.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en puerto ${PORT}`);
   console.log('🔵 Orígenes permitidos:', allowedOrigins);
 });
+
+const profileRoutes = require('./routes/profile');
+app.use('/api/profile', profileRoutes);
+const userRoutes = require('./routes/users');
+app.use('/api/users', userRoutes);
