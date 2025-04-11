@@ -36,7 +36,7 @@ const corsOptions = {
 
 // Middlewares (actualizados)
 app.use(cors(corsOptions));  // Usa la configuración personalizada
-app.options('*', cors());    // Manejo explícito de preflight requests
+app.options('*', cors(corsOptions));    // Manejo explícito de preflight requests
 app.use(express.json());
 
 // Configuración de WebSocket (actualizada)
