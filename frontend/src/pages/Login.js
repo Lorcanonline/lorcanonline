@@ -12,7 +12,7 @@ const Login = ({ setIsAuthenticated, setUser }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await axios.post(
+      const response = await axios.post(
         `/api/auth/login`, {
         username,
         password
@@ -26,13 +26,14 @@ const Login = ({ setIsAuthenticated, setUser }) => {
       // }
     );
       
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('username', data.username);
-      localStorage.setItem('userId', data.userId);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('username', response.data.username);
+      localStorage.setItem('userId', response.data.userId);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
       navigate('/'); // Redirige al home después de login
       
       setIsAuthenticated(true);
-      setUser({ username: data.username, id: data.userId });
+      setUser({ username: response.data.username, id: response.data.userId });
       navigate('/');
 
     } catch (err) {

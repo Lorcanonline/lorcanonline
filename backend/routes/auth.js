@@ -35,7 +35,7 @@ router.post('/register', async (req, res) => {
 
     // Generar token JWT
     const token = jwt.sign(
-      { id: newUser._id, username: newUser.username },
+      { id: newUser.userId, username: newUser.username },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -55,7 +55,7 @@ router.post('/register', async (req, res) => {
 // });
 
 res.status(201).json({
-  userId: newUser._id,
+  userId: newUser.userId,
   username: newUser.username,
   email: newUser.email,
   token: token
@@ -90,12 +90,12 @@ router.post('/login', async (req, res) => {
 
     // Generar token
     const token = jwt.sign(
-      { id: user._id, username: user.username },
+      { id: user.userId, username: user.username },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-// En ambas rutas (login y register), cambia la respuesta:
+
 res
   // .cookie('token', token, { 
   //   httpOnly: true,
@@ -103,7 +103,7 @@ res
   //   sameSite: 'strict'
   // })
   .json({ 
-    userId: user._id, 
+    userId: user.userId, 
     username: user.username,
     token // Para desarrollo
   });

@@ -24,7 +24,7 @@ function App() {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setIsAuthenticated(true);
       setUser({ 
-        username,
+        username: username,
         id: localStorage.getItem('userId')
       });
     }
@@ -38,7 +38,7 @@ function App() {
     setIsAuthenticated(false);
     setUser(null);
   };
-  console.log('API URL:', process.env.REACT_APP_API_URL);
+  // console.log('API URL:', process.env.REACT_APP_API_URL);
 
   return (
     <Router>

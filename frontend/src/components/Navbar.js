@@ -22,7 +22,7 @@ const Navbar = ({ isAuthenticated, user, onLogout }) => {
           fontSize: '1.5rem',
           fontWeight: 'bold'
         }}>
-          Lorcana
+          LorcanaOnline
         </Link>
         
         {isAuthenticated ? (
