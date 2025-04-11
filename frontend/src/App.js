@@ -20,20 +20,15 @@ function App() {
   // Verificar autenticación al cargar
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
-    const avatar = localStorage.getItem('avatar');
-
-    if (token && username && avatar) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setIsAuthenticated(true);
-      setUser({ 
-        username: username,
-        avatar: avatar,
-        id: localStorage.getItem('userId')
-      });
+    if (token) {
+      axios.get('/api/auth/me', { // Crea este endpoint en tu backend
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(({ data }) => setUser(data))
+      .catch(console.error);
     }
   }, []);
-
+  
   // Función para manejar logout
   const handleLogout = () => {
     localStorage.removeItem('token');
