@@ -12,7 +12,8 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://tu-backend-en-render.onrender.com/api/auth/register', {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/auth/register`, {
         username,
         email,
         password

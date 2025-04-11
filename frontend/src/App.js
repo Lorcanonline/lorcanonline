@@ -8,7 +8,7 @@ import Navbar from './components/Navbar';
 import './App.css';
 
 // Configura Axios globalmente
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://tu-backend-en-render.onrender.com';
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://lorcanonline.onrender.com';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
