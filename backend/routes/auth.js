@@ -88,11 +88,14 @@ router.post('/login', async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict'
     }).json({ userId: user._id, username: user.username });
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error en el servidor' });
   }
 });
 
+router.get('/home', (req, res) => {
+  res.send('Home');
+})
 module.exports = router;
