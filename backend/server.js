@@ -34,35 +34,34 @@ app.use((req, res, next) => {
 // Middlewares esenciales
 app.use(express.json());
 
-// Configuración de WebSocket
-const io = socketio(server, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ['GET', 'POST'],
-    credentials: true
-  }
-});
-
-// Conexión a MongoDB con manejo mejorado
+// Conexión a MongoDB
 mongoose.set('strictQuery', false); // Para eliminar el warning de deprecación
 
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000, // Timeout después de 5 segundos
-      socketTimeoutMS: 45000 // Cierra sockets después de 45s de inactividad
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 50000
     });
     console.log('✅ MongoDB conectado exitosamente');
   } catch (err) {
     console.error('❌ Error de conexión a MongoDB:', err.message);
-    process.exit(1); // Termina la aplicación con error
+    process.exit(1);
   }
 };
 
-// Llama a la función de conexión
 connectDB();
+
 // Rutas
 app.use('/api/auth', authRoutes);
+
+// Configuración de WebSocket
+const io = socketio(server, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ['GET', 'POST']
+  }
+});
 
 // Middleware para log de headers (solo desarrollo)
 if (process.env.NODE_ENV === 'development') {
