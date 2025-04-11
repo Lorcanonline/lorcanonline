@@ -40,14 +40,26 @@ router.post('/register', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.status(201)
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      })
-      .json({ userId: newUser._id, username: newUser.username });
+//     res.status(201)
+//       .cookie('token', token, {
+//         httpOnly: true,
+//         secure: process.env.NODE_ENV === 'production',
+//         sameSite: 'strict'
+//       })
+//       .json({ userId: newUser._id, username: newUser.username });
     
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Error en el servidor' });
+//   }
+// });
+
+res.status(201).json({
+  userId: newUser._id,
+  username: newUser.username,
+  email: newUser.email,
+  token: token
+});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error en el servidor' });
@@ -85,15 +97,15 @@ router.post('/login', async (req, res) => {
 
 // En ambas rutas (login y register), cambia la respuesta:
 res
-  .cookie('token', token, { 
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
-  })
+  // .cookie('token', token, { 
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === 'production',
+  //   sameSite: 'strict'
+  // })
   .json({ 
     userId: user._id, 
     username: user.username,
-    // token
+    token // Para desarrollo
   });
 
   } catch (error) {
@@ -102,7 +114,4 @@ res
   }
 });
 
-router.get('/home', (req, res) => {
-  res.send('Home');
-})
 module.exports = router;

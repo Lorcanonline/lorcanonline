@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
-  const [user, setUsername] = useState('');
+const Login = ({ setIsAuthenticated, setUser }) => {
+  const [username, setUsername] = useState('');
   // const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -12,23 +12,29 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
+      const data = await axios.post(
         `/api/auth/login`, {
-        user,
+        username,
         password
-      }, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
+      }
+      // , {
+      //   withCredentials: true,
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Accept': 'application/json'
+      //   }
+      // }
+    );
       
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('username', response.data.username);
-      localStorage.setItem('userId', response.data.userId);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('userId', data.userId);
       navigate('/'); // Redirige al home después de login
       
+      setIsAuthenticated(true);
+      setUser({ username: data.username, id: data.userId });
+      navigate('/');
+
     } catch (err) {
       setError(err.response?.data?.message || 'Error al iniciar sesión');
     }
@@ -40,10 +46,10 @@ const Login = () => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div>
-          <label>usuario:</label>
+          <label>Usuario:</label>
           <input
-            type="user"
-            value={user}
+            type="text"
+            value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
