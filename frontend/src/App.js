@@ -21,12 +21,14 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
+    const avatar = localStorage.getItem('avatar');
 
-    if (token && username) {
+    if (token && username && avatar) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setIsAuthenticated(true);
       setUser({ 
         username: username,
+        avatar: avatar,
         id: localStorage.getItem('userId')
       });
     }

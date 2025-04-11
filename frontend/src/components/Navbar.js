@@ -31,8 +31,8 @@ const Navbar = ({ isAuthenticated, user, onLogout }) => {
 
               <Link to={`/profile/${user.username}`} style={{ display: 'flex', alignItems: 'center' }}>
                 <img 
-                  src={`/avatars/${user.avatar}.jpg`} 
-                  alt="Avatar"
+                  src={`/avatars/${user.avatar}.jpg`}
+                  alt={`Avatar de ${user.username}`}
                   style={{
                     width: '40px',
                     height: '40px',
