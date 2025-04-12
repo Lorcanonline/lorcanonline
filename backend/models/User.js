@@ -4,14 +4,9 @@ const userSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true },
   email: {
     type: String,
-    // unique: true,
+    unique: true,
     sparse: true, 
-    default: null,
     validate: {
-      // validator: function(v) {
-      //   return v === null || /^\S+@\S+\.\S+$/.test(v);
-      // },
-      // message: props => `${props.value} no es un email válido!`
     }
   },
   password: {type: String, required: true},
