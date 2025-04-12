@@ -1,72 +1,66 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-const Login = ({ setIsAuthenticated, setUser }) => {
-  const [username, setUsername] = useState('');
-  // const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Login = () => {
+  const [credentials, setCredentials] = useState({
+    username: '',
+    password: ''
+  });
   const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `/api/auth/login`, {
-        username,
-        password
-      }
-      // , {
-      //   withCredentials: true,
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Accept': 'application/json'
-      //   }
-      // }
-    );
-      
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('username', response.data.username);
-      localStorage.setItem('userId', response.data.userId);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-      navigate('/'); // Redirige al home después de login
-      
-      setIsAuthenticated(true);
-      setUser({ username: response.data.username, id: response.data.userId });
+      const { data } = await axios.post('/api/auth/login', credentials);
+      login(data, data.token);
       navigate('/');
-
     } catch (err) {
       setError(err.response?.data?.message || 'Error al iniciar sesión');
     }
   };
 
+  const handleChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+  };
+
   return (
-    <div style={{ maxWidth: '400px', margin: '2rem auto' }}>
+    <div className="auth-container">
       <h2>Iniciar Sesión</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <div className="error-message">{error}</div>}
+      
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className="form-group">
           <label>Usuario:</label>
           <input
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            name="username"
+            value={credentials.username}
+            onChange={handleChange}
             required
           />
         </div>
-        <div>
+
+        <div className="form-group">
           <label>Contraseña:</label>
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            name="password"
+            value={credentials.password}
+            onChange={handleChange}
             required
           />
         </div>
-        <button type="submit">Ingresar</button>
+
+        <button type="submit" className="submit-button">
+          Ingresar
+        </button>
       </form>
-      <p>
+
+      <p className="auth-link">
         ¿No tienes cuenta? <a href="/register">Regístrate aquí</a>
       </p>
     </div>

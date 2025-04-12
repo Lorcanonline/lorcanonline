@@ -4,115 +4,110 @@ const mongoose = require('mongoose');
 const http = require('http');
 const socketio = require('socket.io');
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users'); // Movido arriba
 
 const app = express();
 const server = http.createServer(app);
 
-// Configuración de CORS manual - Solución definitiva
-const allowedOrigins = [
-  'https://lorcanonline.vercel.app',
-  'http://localhost:3000',
-  process.env.FRONTEND_URL
-].filter(Boolean);
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+// Configuración centralizada
+const config = {
+  allowedOrigins: [
+    'https://lorcanonline.vercel.app',
+    'http://localhost:3000',
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
+  mongoOptions: {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 50000
   }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  
-  // Manejo preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
+};
 
 // Middlewares esenciales
 app.use(express.json());
+app.use(handleCors(config.allowedOrigins));
 
 // Conexión a MongoDB
-mongoose.set('strictQuery', false); // Para eliminar el warning de deprecación
+mongoose.set('strictQuery', false);
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 50000
-    });
-    console.log('✅ MongoDB conectado exitosamente');
+    await mongoose.connect(process.env.MONGODB_URI, config.mongoOptions);
+    console.log('✅ MongoDB conectado');
   } catch (err) {
-    console.error('❌ Error de conexión a MongoDB:', err.message);
+    console.error('❌ Error MongoDB:', err.message);
     console.error('URI usada:', process.env.MONGODB_URI?.replace(/\/\/[^@]+@/, '//***:***@'));
     process.exit(1);
   }
 };
 
-connectDB();
-
-// Rutas
+// Routes (Mejor orden)
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/profile', userRoutes); // Si es necesario
 
-// Configuración de WebSocket
-const io = socketio(server, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ['GET', 'POST']
-  }
+// WebSocket
+configureWebSocket(server, config.allowedOrigins);
+
+// Manejo de errores global
+app.use(globalErrorHandler);
+
+// Health Check
+app.get('/api/health', (req, res) => res.json({ 
+  status: 'OK',
+  timestamp: new Date().toISOString()
+}));
+
+// Iniciar servidor
+const PORT = process.env.PORT || 5000;
+connectDB().then(() => {
+  server.listen(PORT, () => {
+    console.log(`🚀 Servidor en puerto ${PORT}`);
+    console.log('🔵 Orígenes permitidos:', config.allowedOrigins);
+  });
 });
 
-// Middleware para log de headers (solo desarrollo)
-if (process.env.NODE_ENV === 'development') {
-  app.use((req, res, next) => {
-    console.log('Headers recibidos:', req.headers);
+// Funciones auxiliares (Modularizar)
+function handleCors(allowedOrigins) {
+  return (req, res, next) => {
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    
+    if (req.method === 'OPTIONS') return res.sendStatus(200);
     next();
+  };
+}
+
+function configureWebSocket(server, allowedOrigins) {
+  const io = socketio(server, {
+    cors: {
+      origin: allowedOrigins,
+      methods: ['GET', 'POST']
+    }
+  });
+
+  io.on('connection', (socket) => {
+    console.log(`⚡ Cliente conectado: ${socket.id}`);
+    
+    socket.on('disconnect', () => {
+      console.log(`🔌 Cliente desconectado: ${socket.id}`);
+    });
+
+    socket.on('join_game', (gameId) => {
+      socket.join(gameId);
+      io.to(gameId).emit('player_joined', socket.id);
+    });
   });
 }
 
-// WebSocket Connection
-io.on('connection', (socket) => {
-  console.log(`⚡ Nuevo cliente conectado: ${socket.id}`);
-
-  socket.on('disconnect', () => {
-    console.log(`🔌 Cliente desconectado: ${socket.id}`);
-  });
-});
-
-io.on('connection', (socket) => {
-  socket.on('join_game', (gameId) => {
-    socket.join(gameId);
-    io.to(gameId).emit('player_joined', socket.id);
-  });
-});
-
-// Manejo de errores global
-app.use((err, req, res, next) => {
+function globalErrorHandler(err, req, res, next) {
   console.error(err.stack);
   res.status(500).json({ 
-    message: 'Algo salió mal en el servidor',
+    message: 'Error interno del servidor',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
-});
-
-// Ruta de prueba
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK',
-    message: 'API funcionando correctamente',
-    timestamp: new Date().toISOString()
-  });
-});
-
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 Servidor escuchando en puerto ${PORT}`);
-  console.log('🔵 Orígenes permitidos:', allowedOrigins);
-});
-
-const profileRoutes = require('./routes/users');
-app.use('/api/profile', profileRoutes);
-const userRoutes = require('./routes/users');
-app.use('/api/users', userRoutes);
+}

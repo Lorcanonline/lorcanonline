@@ -63,3 +63,95 @@ input {
 .profile-link:hover {
   color: #646cff; 
 }
+
+/* Auth Pages */
+.auth-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 12px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 1rem;
+}
+
+.error-message {
+  color: #e74c3c;
+  padding: 10px;
+  margin-bottom: 1rem;
+  background: #f8d7da;
+  border-radius: 4px;
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.auth-link a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+/* Avatar Selector */
+.avatar-section {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.avatar-preview {
+  cursor: pointer;
+  display: inline-block;
+  margin: 10px 0;
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Home Page */
+.home-container {
+  padding: 2rem;
+  text-align: center;
+}
+
+.home-container h2 {
+  margin-bottom: 1rem;
+}
+
+.home-container a {
+  color: #3498db;
+  text-decoration: none;
+  margin: 0 5px;
+}
