@@ -15,4 +15,21 @@ router.get('/:username', async (req, res) => {
   }
 });
 
+// Actualizar avatar
+router.patch('/:username/avatar', async (req, res) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { username: req.params.username },
+      { avatar: req.body.avatar },
+      { new: true }
+    ).select('-password');
+    
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+    
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Error actualizando avatar' });
+  }
+});
+
 module.exports = router;

@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProfilePage from './pages/ProfilePage';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 // Configuración global de Axios
@@ -29,7 +30,19 @@ const AppRoutes = () => {
         path="/register" 
         element={!user ? <Register /> : <Home />} 
       />
-      <Route path="/profile/:username" element={<ProfilePage />} />
+      {/* <Route 
+        path="/profile/:username"
+        element={<ProfilePage />} 
+      /> */}
+      <Route 
+        path="/profile/:username" 
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>} 
+      />
+
+      
     </Routes>
   );
 };

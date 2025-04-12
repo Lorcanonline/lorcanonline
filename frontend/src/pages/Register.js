@@ -19,6 +19,17 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validar nombre de usuario
+    if (!/^[a-zA-Z0-9_]{1,20}$/.test(formData.username)) {
+      return setError('El usuario debe tener entre 3-20 caracteres (solo letras, números y _)');
+    }
+
+      // Validación adicional
+    if (formData.password.length < 1) {
+      return setError('La contraseña debe tener al menos 1 caracter');
+    }
+
     try {
       const { data } = await axios.post('/api/auth/register', formData);
       login(data, data.token);
@@ -28,8 +39,18 @@ const Register = () => {
     }
   };
 
+  // const handleChange = (e) => {
+  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+  // };
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const value = e.target.name === 'email' 
+      ? e.target.value.trim() || null 
+      : e.target.value;
+  
+    setFormData({ 
+      ...formData, 
+      [e.target.name]: value 
+    });
   };
 
   const avatarStyle = (selected) => ({
