@@ -11,29 +11,29 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const loadUser = async () => {
       const token = localStorage.getItem('token');
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
+      if (!token) return;
+  
       try {
         const { data } = await axios.get('/api/auth/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
-        setUser({
-          ...data,
-          avatar: data.avatar || 'default-avatar' // Fallback para avatar
-        });
-        
+  
+        // ✅ Validar estructura crítica
+        if (!data?._id) {
+          throw new Error('Falta _id en respuesta');
+        }
+  
+        setUser(data);
       } catch (error) {
-        console.error('Error cargando usuario:', error);
-        logout();
+        console.error('Error al cargar usuario:', error.response?.data || error.message);
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+        }
       } finally {
         setLoading(false);
       }
     };
-
+  
     loadUser();
   }, []);
 

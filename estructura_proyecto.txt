@@ -41,6 +41,5 @@
 "C:\Users\Tomi\Desktop\LorcanaOnline\lorcanonline\frontend\package-lock.json"
 "C:\Users\Tomi\Desktop\LorcanaOnline\lorcanonline\frontend\package.json"
 "C:\Users\Tomi\Desktop\LorcanaOnline\lorcanonline\frontend\README.md"
-"C:\Users\Tomi\Desktop\LorcanaOnline\lorcanonline\estructura_proyecto.txt"
 "C:\Users\Tomi\Desktop\LorcanaOnline\lorcanonline\now.json"
 "C:\Users\Tomi\Desktop\LorcanaOnline\lorcanonline\readme.md"
