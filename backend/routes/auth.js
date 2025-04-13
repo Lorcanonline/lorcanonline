@@ -113,20 +113,21 @@ const authController = {
 
   async getProfile(req, res) {
     try {
-      // ✅ Usar req.user._id EXPLÍCITAMENTE
-      const user = await User.findById(req.user._id) // ¡No usar req.user.id!
+      const user = await User.findById(req.user._id)
         .select('-password -__v -decks');
         
       if (!user) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
+        return res.status(404).json({
+          message: 'Usuario no encontrado',
+          errorType: 'validation'
+        });
       }
       
       res.json(user);
     } catch (error) {
-      console.error('Error en getProfile:', error);
-      res.status(500).json({ message: 'Error del servidor' });
+      handleAuthError(error, res);
     }
-  },
+  }
 };
 
 // Utilidades
@@ -145,42 +146,9 @@ const handleAuthError = (error, res) => {
   });
 };
 
-// Middleware authenticate
-const authenticate = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Formato de token inválido' });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (!mongoose.Types.ObjectId.isValid(decoded.id)) {
-      return res.status(401).json({ message: 'ID de usuario inválido' });
-    }
-
-    const user = await User.findById(decoded.id).select('-password').lean();
-    
-    // ✅ Forzar la existencia de _id
-    if (!user?._id) {
-      throw new Error('Usuario no tiene _id');
-    }
-    
-    req.user = {
-      _id: user._id.toString(), // Convertir a string
-      username: user.username
-    };
-    
-    next();
-  } catch (error) {
-    console.error('Error en middleware:', error.message);
-    res.status(500).json({ message: 'Error interno' });
-  }
-};
 // Rutas
 router.post('/register', authController.register);
 router.post('/login', authController.login);
-router.get('/me', authenticate, authController.getProfile);
+router.get('/me', authController.getProfile);
 
 module.exports = router;
