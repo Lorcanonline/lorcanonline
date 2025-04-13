@@ -1,8 +1,45 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const router = express.Router();
+
+const authenticate = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Formato de token inválido' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!mongoose.Types.ObjectId.isValid(decoded.id)) {
+      return res.status(401).json({ message: 'ID de usuario inválido' });
+    }
+
+    const user = await User.findById(decoded.id).select('-password').lean();
+    if (!user) {
+      return res.status(401).json({ message: 'Usuario no existe' });
+    }
+
+    req.user = {
+      _id: user._id.toString(),
+      username: user.username
+    };
+
+    next();
+  } catch (error) {
+    console.error('Error de autenticación:', error.message);
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expirado' });
+    }
+    
+    res.status(401).json({ message: 'Token inválido' });
+  }
+};
 
 const authController = {
   async register(req, res) {
@@ -10,7 +47,6 @@ const authController = {
       const { username, password, avatar } = req.body;
       const email = req.body.email?.trim() || null;
 
-      // Validación básica
       if (!username || !password) {
         return res.status(400).json({ 
           message: 'Se requieren nombre de usuario y contraseña',
@@ -18,7 +54,6 @@ const authController = {
         });
       }
 
-      // Validar formato de email si se proporciona
       if (email && !/\S+@\S+\.\S+/.test(email)) {
         return res.status(400).json({
           message: 'Formato de email inválido',
@@ -26,7 +61,6 @@ const authController = {
         });
       }
 
-      // Verificar existencia de usuario
       const [existingUser, emailUser] = await Promise.all([
         User.findOne({ username }),
         email ? User.findOne({ email }) : null
@@ -46,16 +80,14 @@ const authController = {
         });
       }
 
-      // Crear nuevo usuario
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = await User.create({
         username,
-        email: email || undefined, // Forzar null en MongoDB
+        email: email || undefined,
         password: hashedPassword,
         avatar: avatar || `pfp${Math.floor(Math.random() * 12) + 1}`
       });
 
-      // Generar token
       const token = generateToken(newUser);
 
       res.status(201).json({
@@ -130,9 +162,11 @@ const authController = {
   }
 };
 
-// Utilidades
 const generateToken = (user) => jwt.sign(
-  { id: user._id, username: user.username },
+  { 
+    id: user._id.toString(), // Conversión crítica a string
+    username: user.username 
+  },
   process.env.JWT_SECRET,
   { expiresIn: '1h' }
 );
@@ -146,9 +180,8 @@ const handleAuthError = (error, res) => {
   });
 };
 
-// Rutas
 router.post('/register', authController.register);
 router.post('/login', authController.login);
-router.get('/me', authController.getProfile);
+router.get('/me', authenticate, authController.getProfile); // Middleware aplicado
 
 module.exports = router;
