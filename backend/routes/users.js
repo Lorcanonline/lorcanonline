@@ -35,11 +35,15 @@ router.patch('/:username/avatar', async (req, res) => {
 
 router.put('/:username/update', authMiddleware, async (req, res) => {
   try {
+    console.log('Iniciando actualización para:', req.params.username);
+    console.log('Datos recibidos:', req.body);
     const user = await User.findOne({ username: req.params.username });
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
+    console.log('Usuario encontrado:', user._id);
+    console.log('Usuario autenticado:', req.user.id);
     if (user._id.toString() !== req.user.id) {
       return res.status(403).json({ message: 'No autorizado' });
     }
@@ -73,6 +77,7 @@ router.put('/:username/update', authMiddleware, async (req, res) => {
         }
       }
       updates.email = email;
+      console.log('Email actualizado a:', updates.email);
     }
 
     if (Object.keys(updates).length > 0) {
