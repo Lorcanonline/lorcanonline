@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const authMiddleware = require('../middleware/authMiddleware');
 
 router.get('/:username', async (req, res) => {
   try {
