@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware');
 
 const authController = {
   async register(req, res) {
@@ -149,6 +150,6 @@ const handleAuthError = (error, res) => {
 // Rutas
 router.post('/register', authController.register);
 router.post('/login', authController.login);
-router.get('/me', authController.getProfile);
+router.get('/me', authMiddleware, authController.getProfile);
 
 module.exports = router;
