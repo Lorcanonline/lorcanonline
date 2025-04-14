@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate  } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const ProfilePage = () => {
   const { username } = useParams();
-  const { user: currentUser, login } = useAuth();
+  const { user: currentUser, login, logout  } = useAuth();
+  const navigate = useNavigate();
   const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -20,7 +21,9 @@ const ProfilePage = () => {
   const [updateError, setUpdateError] = useState('');
   const [updateSuccess, setUpdateSuccess] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('');
-  
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');  
 
   // Avatar config
   const avatarOptions = Array.from({ length: 12 }, (_, i) => `pfp${i + 1}`);
@@ -42,7 +45,26 @@ const ProfilePage = () => {
     };
     
     fetchUser();
-  }, [username, currentUser.username]);
+  }, [username]);
+
+  const isCurrentUser = currentUser && 
+  currentUser.username.toLowerCase() === username.toLowerCase();
+
+  const handleAccountDeletion = async () => {
+    try {
+      await axios.delete(`/api/users/${username}/delete`, {
+        data: { password: deletePassword },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      logout();
+      navigate('/');
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || 'Error al eliminar la cuenta');
+    }
+  };
 
   const handleAvatarUpdate = async () => {
     try {
@@ -172,7 +194,7 @@ const ProfilePage = () => {
 
       <div className="profile-content">
                 
-        {currentUser.username === username && (
+        {isCurrentUser && (
           <div className="profile-settings">
             <h3>Configuración de la cuenta</h3>
             
@@ -258,6 +280,48 @@ const ProfilePage = () => {
             >
               Confirmar cambios
             </button>
+          </div>
+        )}
+
+{isCurrentUser && (
+          <div className="danger-zone">
+            <h3>Zona peligrosa</h3>
+            <button 
+              onClick={() => setShowDeleteModal(true)}
+              className="delete-account-btn"
+            >
+              Eliminar cuenta permanentemente
+            </button>
+
+            {showDeleteModal && (
+              <div className="confirmation-modal">
+                <div className="modal-content">
+                  <h4>¡Atención! Esta acción es irreversible</h4>
+                  <p>Para confirmar, escribe tu contraseña actual:</p>
+                  
+                  <input
+                    type="password"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Contraseña actual"
+                  />
+                  
+                  {deleteError && <div className="error-message">{deleteError}</div>}
+                  
+                  <div className="modal-actions">
+                    <button 
+                      onClick={handleAccountDeletion}
+                      disabled={!deletePassword}
+                    >
+                      Confirmar eliminación
+                    </button>
+                    <button onClick={() => setShowDeleteModal(false)}>
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
         </div>

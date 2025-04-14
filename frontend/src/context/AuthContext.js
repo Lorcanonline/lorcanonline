@@ -61,6 +61,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
+    window.location.href = '/';
   };
 
   // Valor del contexto

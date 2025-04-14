@@ -8,12 +8,43 @@ router.get('/:username', async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username })
     .collation({ locale: 'en', strength: 2 });
+    
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: 'Error del servidor' });
+  }
+});
+
+// DELETE user con verificación de contraseña
+router.delete('/:username/delete', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username })
+      .collation({ locale: 'en', strength: 2 });
+
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+    if (user._id.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'No autorizado' });
+    }
+
+    const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ message: 'Se requiere la contraseña' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Contraseña incorrecta' });
+    }
+
+    await User.findByIdAndDelete(user._id);
+    res.json({ message: 'Cuenta eliminada exitosamente' });
+
+  } catch (error) {
+    console.error('Error eliminando cuenta:', error);
+    res.status(500).json({ message: 'Error eliminando cuenta' });
   }
 });
 
