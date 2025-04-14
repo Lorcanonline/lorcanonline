@@ -172,6 +172,7 @@ const ProfilePage = () => {
 
       <div className="profile-content">
                 
+        {currentUser.username === username && (
           <div className="profile-settings">
             <h3>Configuración de la cuenta</h3>
             
@@ -258,6 +259,7 @@ const ProfilePage = () => {
               Confirmar cambios
             </button>
           </div>
+        )}
         </div>
       </div>
 
