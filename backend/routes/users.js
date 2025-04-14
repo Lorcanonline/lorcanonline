@@ -6,7 +6,8 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 router.get('/:username', async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.params.username });
+    const user = await User.findOne({ username: req.params.username })
+    .collation({ locale: 'en', strength: 2 });
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
@@ -22,7 +23,10 @@ router.patch('/:username/avatar', async (req, res) => {
     const user = await User.findOneAndUpdate(
       { username: req.params.username },
       { avatar: req.body.avatar },
-      { new: true }
+      { 
+        new: true,
+        collation: { locale: 'en', strength: 2 }  
+      }
     ).select('-password');
     
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -35,15 +39,13 @@ router.patch('/:username/avatar', async (req, res) => {
 
 router.put('/:username/update', authMiddleware, async (req, res) => {
   try {
-    console.log('Iniciando actualización para:', req.params.username);
-    console.log('Datos recibidos:', req.body);
-    const user = await User.findOne({ username: req.params.username });
+    const user = await User.findOne({ username: req.params.username })
+    .collation({ locale: 'en', strength: 2 }); 
+
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    console.log('Usuario encontrado:', user._id);
-    console.log('Usuario autenticado:', req.user.id);
     if (user._id.toString() !== req.user.id) {
       return res.status(403).json({ message: 'No autorizado' });
     }
