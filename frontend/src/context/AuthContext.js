@@ -15,6 +15,11 @@ export function AuthProvider({ children }) {
         setLoading(false);
         return;
       }
+      if (token.split('.').length !== 3) { // Validación simple de formato JWT
+        localStorage.removeItem('token');
+        setLoading(false);
+        return;
+      }
 
       try {
         const { data } = await axios.get('/api/auth/me', {
@@ -27,8 +32,12 @@ export function AuthProvider({ children }) {
         });
         
       } catch (error) {
-        console.error('Error cargando usuario:', error);
-        logout();
+        if (error.response?.status === 401) {
+          console.log('Token inválido - limpiando sesión');
+          logout();
+        } else {
+          console.error('Error cargando usuario:', error);
+        }
       } finally {
         setLoading(false);
       }

@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware'); 
 
 const authController = {
   async register(req, res) {
@@ -113,7 +114,7 @@ const authController = {
 
   async getProfile(req, res) {
     try {
-      const user = await User.findById(req.user.id)
+      const user = await User.findById(req.user._id)
         .select('-password -__v -decks');
         
       if (!user) {
@@ -149,6 +150,6 @@ const handleAuthError = (error, res) => {
 // Rutas
 router.post('/register', authController.register);
 router.post('/login', authController.login);
-router.get('/me', authController.getProfile);
+router.get('/me', authMiddleware, authController.getProfile);
 
 module.exports = router;
