@@ -46,7 +46,7 @@ const Navbar = () => {
           fontSize: '1.5rem',
           fontWeight: 'bold'
         }}>
-          LorcanaOnline
+          LorcanOnline
         </Link>
         
         {user ? (
