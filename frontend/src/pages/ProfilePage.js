@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, 
-  // useNavigate
- } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -12,11 +11,19 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
-  // const navigate = useNavigate();
+  const [showPasswordMenu, setShowPasswordMenu] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [updateError, setUpdateError] = useState('');
+  const [updateSuccess, setUpdateSuccess] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState('');
+  
 
   // Avatar config
   const avatarOptions = Array.from({ length: 12 }, (_, i) => `pfp${i + 1}`);
-  const [selectedAvatar, setSelectedAvatar] = useState('');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -24,6 +31,7 @@ const ProfilePage = () => {
         const { data } = await axios.get(`/api/users/${username}`);
         setProfileUser(data);
         setSelectedAvatar(data.avatar);
+        setEmail(data.email || '');
       } catch (err) {
         setError(err.response?.status === 404 
           ? 'Este usuario no existe' 
@@ -48,6 +56,46 @@ const ProfilePage = () => {
       setShowAvatarPicker(false);
     } catch (err) {
       setError('Error actualizando avatar');
+    }
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    try {
+      const updateData = {};
+      if (newPassword) {
+        updateData.currentPassword = currentPassword;
+        updateData.newPassword = newPassword;
+      }
+      if (email !== profileUser.email) {
+        updateData.email = email;
+      }
+
+      const { data } = await axios.put(
+        `/api/users/${currentUser.username}/update`,
+        updateData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+
+      if (data.email) {
+        login({ ...currentUser, email: data.email }, localStorage.getItem('token'));
+      }
+
+      setProfileUser(prev => ({ ...prev, email: data.email }));
+      setUpdateSuccess('Datos actualizados correctamente');
+      setUpdateError('');
+      setCurrentPassword('');
+      setNewPassword('');
+      setTimeout(() => setUpdateSuccess(''), 3000);
+      
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Error al actualizar los datos';
+      setUpdateError(errorMessage);
+      setUpdateSuccess('');
     }
   };
 
@@ -106,8 +154,91 @@ const ProfilePage = () => {
       </div>
 
       <h2>Perfil de {profileUser.username}</h2>
-      {/* Resto de información del perfil */}
-    </div>
+              
+        <div className="profile-settings">
+          <h3>Configuración de la cuenta</h3>
+          
+          <div className="form-group">
+            <label>Email:</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Añade o actualiza tu email"
+            />
+          </div>
+
+          <button 
+            onClick={() => setShowPasswordMenu(!showPasswordMenu)}
+            className="toggle-password-btn"
+          >
+            {showPasswordMenu ? 'Ocultar cambio de contraseña' : 'Cambiar contraseña'}
+          </button>
+
+          {showPasswordMenu && (
+            <div className="password-form">
+              <div className="form-group">
+                <label>Contraseña actual:</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showCurrentPassword ? "text" : "password"}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="••••••••"
+                  />
+                  <button
+                    className="toggle-password-visibility"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  >
+                    {showCurrentPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Nueva contraseña:</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="••••••••"
+                  />
+                  <button
+                    className="toggle-password-visibility"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    {showNewPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {(updateError || updateSuccess) && (
+            <div className={`update-message ${updateError ? 'error' : 'success'}`}>
+              {updateError || updateSuccess}
+            </div>
+          )}
+
+          <button
+            onClick={handleUpdateProfile}
+            disabled={!email && !newPassword}
+            className="update-profile-btn"
+          >
+            Confirmar cambios
+          </button>
+        </div>
+      </div>
+
   );
 };
 
