@@ -63,6 +63,18 @@ const ProfilePage = () => {
     e.preventDefault();
     try {
       const updateData = {};
+      
+      const trimmedEmail = email.trim();
+
+      if (trimmedEmail && !/\S+@\S+\.\S+/.test(trimmedEmail)) {
+        setUpdateError('Formato de email inválido');
+        setUpdateSuccess('');
+        return;
+      }
+      if (trimmedEmail !== (profileUser.email || '')) {
+        updateData.email = trimmedEmail || null;
+      }
+
       if (newPassword) {
         updateData.currentPassword = currentPassword;
         updateData.newPassword = newPassword;
@@ -154,88 +166,93 @@ const ProfilePage = () => {
       </div>
 
       <h2>Perfil de {profileUser.username}</h2>
-              
-        <div className="profile-settings">
-          <h3>Configuración de la cuenta</h3>
-          
-          <div className="form-group">
-            <label>Email:</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Añade o actualiza tu email"
-            />
-          </div>
 
-          <button 
-            onClick={() => setShowPasswordMenu(!showPasswordMenu)}
-            className="toggle-password-btn"
-          >
-            {showPasswordMenu ? 'Ocultar cambio de contraseña' : 'Cambiar contraseña'}
-          </button>
+      <div className="profile-content">
+                
+          <div className="profile-settings">
+            <h3>Configuración de la cuenta</h3>
+            
+            <div className="form-group">
+              <label>Email:</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={profileUser.email ? "Actualiza tu email" : "Añade un email (opcional)"}
+                className="email-input"
+              />
+            </div>
 
-          {showPasswordMenu && (
-            <div className="password-form">
-              <div className="form-group">
-                <label>Contraseña actual:</label>
-                <div className="password-input-wrapper">
-                  <input
-                    type={showCurrentPassword ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="••••••••"
-                  />
-                  <button
-                    className="toggle-password-visibility"
-                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  >
-                    {showCurrentPassword ? (
-                      <EyeSlashIcon className="h-5 w-5" />
-                    ) : (
-                      <EyeIcon className="h-5 w-5" />
-                    )}
-                  </button>
+            <button 
+              onClick={() => setShowPasswordMenu(!showPasswordMenu)}
+              className="toggle-password-btn"
+            >
+              {showPasswordMenu ? 'Ocultar cambio de contraseña' : 'Cambiar contraseña'}
+            </button>
+
+            {showPasswordMenu && (
+              <div className="password-form">
+                <div className="form-group">
+                  <label>Contraseña actual:</label>
+                  <div className="password-input-container">
+                    <input
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="•••••"
+                      className="password-input"
+                    />
+                    <span
+                  className="password-toggle-icon"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                >
+                  {showCurrentPassword ? (
+                    <EyeSlashIcon className="h-5 w-5 text-gray-500 hover:text-gray-700" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5 text-gray-500 hover:text-gray-700" />
+                  )}
+                </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="form-group">
-                <label>Nueva contraseña:</label>
-                <div className="password-input-wrapper">
-                  <input
-                    type={showNewPassword ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="••••••••"
-                  />
-                  <button
-                    className="toggle-password-visibility"
+                <div className="form-group">
+                  <label>Nueva contraseña:</label>
+                  <div className="password-input-container">
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="•••••"
+                      className="password-input"
+                    /><span
+                    className="password-toggle-icon"
                     onClick={() => setShowNewPassword(!showNewPassword)}
                   >
                     {showNewPassword ? (
-                      <EyeSlashIcon className="h-5 w-5" />
+                      <EyeSlashIcon className="h-5 w-5 text-gray-500 hover:text-gray-700" />
                     ) : (
-                      <EyeIcon className="h-5 w-5" />
+                      <EyeIcon className="h-5 w-5 text-gray-500 hover:text-gray-700" />
                     )}
-                  </button>
+                  </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {(updateError || updateSuccess) && (
-            <div className={`update-message ${updateError ? 'error' : 'success'}`}>
-              {updateError || updateSuccess}
-            </div>
-          )}
+            {(updateError || updateSuccess) && (
+              <div className={`update-message ${updateError ? 'error' : 'success'}`}>
+                {updateError || updateSuccess}
+              </div>
+            )}
 
-          <button
-            onClick={handleUpdateProfile}
-            disabled={!email && !newPassword}
-            className="update-profile-btn"
-          >
-            Confirmar cambios
-          </button>
+            <button
+              onClick={handleUpdateProfile}
+              disabled={!email && !newPassword}
+              className="update-profile-btn"
+            >
+              Confirmar cambios
+            </button>
+          </div>
         </div>
       </div>
 

@@ -45,7 +45,8 @@ router.put('/:username/update', authMiddleware, async (req, res) => {
     }
 
     const updates = {};
-    const { currentPassword, newPassword, email } = req.body;
+    const { currentPassword, newPassword } = req.body;
+    let newEmail = req.body.email?.trim() || null;
 
     if (newPassword) {
       if (!currentPassword) {
@@ -59,11 +60,17 @@ router.put('/:username/update', authMiddleware, async (req, res) => {
 
       updates.password = await bcrypt.hash(newPassword, 10);
     }
-
-    if (email && email !== user.email) {
-      const existingEmail = await User.findOne({ email });
+    if (typeof req.body.email !== 'undefined') {
+      if (newEmail === '') newEmail = null;
+      
+      if (newEmail && newEmail !== user.email) {
+        if (!/\S+@\S+\.\S+/.test(newEmail)) {
+          return res.status(400).json({ message: 'Formato de email inválido' });
+        }
+      const existingEmail = await User.findOne({ email:newEmail });
       if (existingEmail) {
         return res.status(400).json({ message: 'El email ya está registrado' });
+        }
       }
       updates.email = email;
     }
