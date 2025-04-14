@@ -51,7 +51,7 @@ const Navbar = () => {
         
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Link to={`/profile/${user.username}`}>
+            <Link to={`/u/${user.username}`}>
               <img
                 src={`/avatars/${user.avatar}.jpg`} 
                 onError={(e) => {

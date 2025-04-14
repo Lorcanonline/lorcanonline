@@ -43,7 +43,7 @@ const connectDB = async () => {
 // Routes (Mejor orden)
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/profile', userRoutes); // Si es necesario
+app.use('/api/u', userRoutes); // Si es necesario
 
 // WebSocket
 configureWebSocket(server, config.allowedOrigins);
