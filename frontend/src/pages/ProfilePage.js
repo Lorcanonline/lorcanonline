@@ -91,7 +91,10 @@ const ProfilePage = () => {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         }
-      );
+      ).catch(error => {
+        console.error('Error detallado:', error.response);
+        throw error;
+      });
 
       if (data.email) {
         login({ ...currentUser, email: data.email }, localStorage.getItem('token'));
@@ -247,8 +250,10 @@ const ProfilePage = () => {
 
             <button
               onClick={handleUpdateProfile}
-              disabled={!email && !newPassword}
-              className="update-profile-btn"
+              disabled={
+                (email === (profileUser?.email || '')) && 
+                !newPassword
+              }              className="update-profile-btn"
             >
               Confirmar cambios
             </button>

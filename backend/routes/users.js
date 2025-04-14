@@ -76,7 +76,7 @@ router.put('/:username/update', authMiddleware, async (req, res) => {
         return res.status(400).json({ message: 'El email ya está registrado' });
         }
       }
-      updates.email = email;
+      updates.email = newEmail;
       console.log('Email actualizado a:', updates.email);
     }
 
