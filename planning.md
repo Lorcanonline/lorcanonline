@@ -1,35 +1,45 @@
-🎯 Fase 0: Preparación (Día 1)
+✔️✔️ Fase 0: Preparación (Día 1)
 Objetivo: Tener todo listo para empezar a codificar.
 
-    Crear cuentas gratuitas:
-    Render (Backend)                    https://dashboard.render.com/web/srv-cvrrbok9c44c73d974rg
-    Vercel (Frontend)                   https://vercel.com/lorcana-onlines-projects/lorcanonline
-    MongoDB Atlas (Base de datos)       https://cloud.mongodb.com/
-    GitHub (Para alojar el código)      https://github.com/Lorcanonline/lorcanonline
+   ✔️ Crear cuentas gratuitas:
+        Render (Backend)                    https://dashboard.render.com/web/srv-cvrrbok9c44c73d974rg
+        Vercel (Frontend)                   https://vercel.com/lorcana-onlines-projects/lorcanonline
+        MongoDB Atlas (Base de datos)       https://cloud.mongodb.com/
+        GitHub (Para alojar el código)      https://github.com/Lorcanonline/lorcanonline
 
-    Instalar herramientas locales:
-    Node.js
-    Git
+    ✔️ Instalar herramientas locales:
+        Node.js
+        Git
 
 
-🎯 Fase 1: Backend Básico (Días 2-3)
+✔️✔️ Fase 1: Backend Básico (Días 2-3)
 Objetivo: Tener un servidor Node.js funcionando con autenticación básica.
 
-    Estructura inicial del backend
-    Archivo principal (server.js):
-    Subir a GitHub y desplegar en Render:
-    Conectar a Render
+    ✔️ Estructura inicial del backend
+        Archivo principal (server.js):
+    ✔️ Subir a GitHub y desplegar en Render:
+        Conectar a Render
 
 
-🎯 Fase 2: Frontend Básico (Días 4-5)
+✔️✔️ Fase 2: Frontend Básico (Días 4-5)
 Objetivo: Tener una interfaz React inicial conectada al backend.
 
-    Crear app React
-    Conexión al backend:
-    Desplegar en Vercel:
+    ✔️ Crear app React
+    ✔️ Conexión al backend:
+    ✔️ Desplegar en Vercel:
         Sube cambios a GitHub.
         Ve a Vercel > New Project > Importa lorcana-webapp/frontend.
         Configura el entorno automáticamente.
+
+
+✔️✔️ Fase 3: Sistema de Usuarios (Días 6-7)
+Objetivo: CRUD funcional.
+
+    ✔️ Crear y modificar usuarios
+        Crear usuarios
+        Editar usuarios
+    ✔️ Login funcional
+    ✔️ Eliminar usuarios
 
 
 🎯 Fase 4: Sistema de Mazos (Días 8-10)
